@@ -33,6 +33,9 @@ public class MainFrame extends JFrame {
     private JButton btnCrearDepartamento;
     private JButton btnMostrarInfo;
 
+    private JButton btnRemoverEmpleado;
+    private JButton btnRemoverDepartamento;
+
     public MainFrame(OrganizacionController controller) {
         this.controller = controller;
         inicializarComponentes();
@@ -65,10 +68,16 @@ public class MainFrame extends JFrame {
         btnCrearDepartamento = new JButton("🏢 Crear Departamento");
         btnMostrarInfo = new JButton("ℹ️ Mostrar Información");
 
+        btnRemoverEmpleado = new JButton("❌ Remover Empleado");
+        btnRemoverDepartamento = new JButton("🗑️ Remover Departamento");
+
+        configurarEstiloBoton(btnRemoverEmpleado, new Color(244, 67, 54));
+        configurarEstiloBoton(btnRemoverDepartamento, new Color(156, 39, 176));
+
         // Configurar estilos de botones
         configurarEstiloBoton(btnAgregarEmpleado, new Color(76, 175, 80));
         configurarEstiloBoton(btnCrearDepartamento, new Color(33, 150, 243));
-        configurarEstiloBoton(btnMostrarInfo, new Color(255, 152, 0));
+        //configurarEstiloBoton(btnMostrarInfo, new Color(255, 152, 0));
     }
 
     /**
@@ -125,7 +134,13 @@ public class MainFrame extends JFrame {
         JPanel panelBotones = new JPanel(new FlowLayout());
         panelBotones.add(btnAgregarEmpleado);
         panelBotones.add(btnCrearDepartamento);
-        panelBotones.add(btnMostrarInfo);
+        //panelBotones.add(btnMostrarInfo);
+        
+        panelBotones.add(btnRemoverEmpleado);
+        panelBotones.add(btnRemoverDepartamento);
+        
+
+
 
         // Panel de resumen
         JPanel panelResumen = new JPanel(new FlowLayout());
@@ -138,6 +153,8 @@ public class MainFrame extends JFrame {
         panelInferior.add(panelResumen, BorderLayout.SOUTH);
 
         add(panelInferior, BorderLayout.SOUTH);
+        
+        
     }
 
     /**
@@ -172,6 +189,82 @@ public class MainFrame extends JFrame {
         arbolOrganizacion.addTreeSelectionListener(e -> {
             mostrarInformacionSeleccionada();
         });
+
+        btnRemoverEmpleado.addActionListener(e -> removerEmpleadoSeleccionado());
+        btnRemoverDepartamento.addActionListener(e -> removerDepartamentoSeleccionado());
+    }
+
+    /**
+     * Remueve el empleado seleccionado del árbol
+     */
+    private void removerEmpleadoSeleccionado() {
+        DefaultMutableTreeNode nodoSeleccionado
+                = (DefaultMutableTreeNode) arbolOrganizacion.getLastSelectedPathComponent();
+
+        if (nodoSeleccionado == null) {
+            mostrarMensajeError("Seleccione un empleado del árbol.");
+            return;
+        }
+
+        String textoNodo = nodoSeleccionado.toString();
+
+        // Solo remover empleados individuales
+        if (!textoNodo.startsWith("👤 ")) {
+            mostrarMensajeError("Solo se pueden remover empleados individuales. Para departamentos use 'Remover Departamento'.");
+            return;
+        }
+
+        String nombreEmpleado = extraerNombreDeNodo(textoNodo);
+
+        // Confirmar eliminación
+        int confirmacion = JOptionPane.showConfirmDialog(
+                this,
+                "¿Está seguro de que desea remover al empleado '" + nombreEmpleado + "'?",
+                "Confirmar Eliminación",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (confirmacion == JOptionPane.YES_OPTION) {
+            boolean exito = controller.removerEmpleado(nombreEmpleado);
+
+            if (exito) {
+                mostrarMensajeExito("Empleado '" + nombreEmpleado + "' removido exitosamente.");
+            } else {
+                mostrarMensajeError("Error al remover el empleado.");
+            }
+        }
+    }
+
+    /**
+     * Remueve el departamento seleccionado del árbol
+     */
+    private void removerDepartamentoSeleccionado() {
+        DefaultMutableTreeNode nodoSeleccionado
+                = (DefaultMutableTreeNode) arbolOrganizacion.getLastSelectedPathComponent();
+
+        if (nodoSeleccionado == null) {
+            mostrarMensajeError("Seleccione un departamento del árbol.");
+            return;
+        }
+
+        String textoNodo = nodoSeleccionado.toString();
+
+        // Solo remover departamentos (no empleados individuales)
+        if (textoNodo.startsWith("👤 ")) {
+            mostrarMensajeError("Seleccione un departamento. Para empleados use 'Remover Empleado'.");
+            return;
+        }
+
+        String nombreDepartamento = extraerNombreDeNodo(textoNodo);
+
+        // El controlador ya maneja la confirmación
+        boolean exito = controller.removerDepartamento(nombreDepartamento);
+
+        if (exito) {
+            mostrarMensajeExito("Departamento removido exitosamente.");
+        } else {
+            mostrarMensajeError("Error al remover el departamento o operación cancelada.");
+        }
     }
 
     /**

@@ -8,40 +8,39 @@ package controller;
  *
  * @author USER
  */
-
 import model.*;
 import view.MainFrame;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.util.HashMap;
 import java.util.Map;
-
-
+import javax.swing.JOptionPane;
 
 /**
- * Controlador que maneja la lógica entre la vista y el modelo
- * Implementa el patrón MVC para la aplicación Composite
+ * Controlador que maneja la lógica entre la vista y el modelo Implementa el
+ * patrón MVC para la aplicación Composite
  */
 public class OrganizacionController {
+
     private MainFrame vista;
     private Departamento empresaPrincipal;
     private Map<String, Empleado> empleadosMap; // Para búsquedas rápidas
-    
+
     public OrganizacionController() {
         this.empleadosMap = new HashMap<>();
         this.empresaPrincipal = new Departamento("Empresa Principal");
         this.vista = new MainFrame(this);
-        
+
         // Datos de ejemplo para inicializar
         inicializarDatosEjemplo();
         actualizarVista();
     }
-    
+
     //Verifico si ya exisite un departamento o empleado con el mismo nombre
-    public boolean existeNombre(String nombre){
+    public boolean existeNombre(String nombre) {
         return empleadosMap.containsKey(nombre);
     }
-    
+
     /**
      * Agrega un empleado individual al departamento seleccionado
      */
@@ -49,8 +48,7 @@ public class OrganizacionController {
         try {
             EmpleadoIndividual nuevoEmpleado = new EmpleadoIndividual(nombre, cargo, salario);
             Departamento departamento = buscarDepartamento(nombreDepartamento);
-            
-            
+
             if (departamento != null) {
                 departamento.agregarEmpleado(nuevoEmpleado);
                 empleadosMap.put(nombre, nuevoEmpleado);
@@ -62,14 +60,14 @@ public class OrganizacionController {
             return false;
         }
     }
-    
+
     /**
      * Crea un nuevo departamento
      */
     public boolean crearDepartamento(String nombrePadre, String nombreNuevo) {
         try {
             Departamento nuevoDepartamento = new Departamento(nombreNuevo);
-            
+
             if (nombrePadre == null || nombrePadre.equals("Empresa Principal")) {
                 empresaPrincipal.agregarEmpleado(nuevoDepartamento);
             } else {
@@ -80,7 +78,7 @@ public class OrganizacionController {
                     return false;
                 }
             }
-            
+
             empleadosMap.put(nombreNuevo, nuevoDepartamento);
             actualizarVista();
             return true;
@@ -88,7 +86,7 @@ public class OrganizacionController {
             return false;
         }
     }
-    
+
     /**
      * Busca un departamento por nombre de forma recursiva
      */
@@ -98,12 +96,12 @@ public class OrganizacionController {
         }
         return buscarDepartamentoRecursivo(empresaPrincipal, nombre);
     }
-    
+
     private Departamento buscarDepartamentoRecursivo(Departamento departamento, String nombre) {
         if (departamento.getNombre().equals(nombre)) {
             return departamento;
         }
-        
+
         for (Empleado empleado : departamento.getEmpleados()) {
             if (empleado instanceof Departamento) {
                 Departamento encontrado = buscarDepartamentoRecursivo((Departamento) empleado, nombre);
@@ -114,28 +112,28 @@ public class OrganizacionController {
         }
         return null;
     }
-    
+
     /**
      * Obtiene información de un empleado/departamento
      */
     public String obtenerInformacionDetallada(String nombre) {
         // Primero buscar en el mapa
         Empleado empleado = empleadosMap.get(nombre);
-        
+
         // Si no está en el mapa, buscar recursivamente
         if (empleado == null) {
             empleado = buscarEmpleadoRecursivo(empresaPrincipal, nombre);
         }
-        
+
         if (empleado != null) {
             // ¡Aquí usamos el método de la interfaz!
             return empleado.mostrarInfo();
         }
-        
+
         return "❌ No se encontró información para: " + nombre;
     }
-    
-     /**
+
+    /**
      * Método auxiliar para buscar empleados recursivamente
      */
     private Empleado buscarEmpleadoRecursivo(Departamento departamento, String nombre) {
@@ -143,13 +141,13 @@ public class OrganizacionController {
         if (departamento.getNombre().equals(nombre)) {
             return departamento;
         }
-        
+
         // Buscar en los empleados del departamento
         for (Empleado empleado : departamento.getEmpleados()) {
             if (empleado.getNombre().equals(nombre)) {
                 return empleado;
             }
-            
+
             // Si es un departamento, buscar recursivamente
             if (empleado instanceof Departamento) {
                 Empleado encontrado = buscarEmpleadoRecursivo((Departamento) empleado, nombre);
@@ -158,10 +156,10 @@ public class OrganizacionController {
                 }
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * Construye el modelo del árbol para la vista
      */
@@ -170,7 +168,7 @@ public class OrganizacionController {
         construirNodosRecursivo(raiz, empresaPrincipal);
         return new DefaultTreeModel(raiz);
     }
-    
+
     private void construirNodosRecursivo(DefaultMutableTreeNode nodo, Departamento departamento) {
         for (Empleado empleado : departamento.getEmpleados()) {
             if (empleado instanceof Departamento) {
@@ -181,28 +179,28 @@ public class OrganizacionController {
             } else if (empleado instanceof EmpleadoIndividual) {
                 EmpleadoIndividual emp = (EmpleadoIndividual) empleado;
                 DefaultMutableTreeNode nodoHijo = new DefaultMutableTreeNode(
-                    "👤 " + emp.getNombre() + " (" + emp.getCargo() + ")"
+                        "👤 " + emp.getNombre() + " (" + emp.getCargo() + ")"
                 );
                 nodo.add(nodoHijo);
             }
         }
     }
-    
+
     /**
      * Actualiza la vista con los datos actuales
      */
     private void actualizarVista() {
         vista.actualizarArbol();
         vista.actualizarResumen(
-            contarTotalEmpleados(),
-            empresaPrincipal.getSalario()
+                contarTotalEmpleados(),
+                empresaPrincipal.getSalario()
         );
     }
-    
+
     private int contarTotalEmpleados() {
         return contarEmpleadosRecursivo(empresaPrincipal);
     }
-    
+
     private int contarEmpleadosRecursivo(Departamento dept) {
         int total = 0;
         for (Empleado emp : dept.getEmpleados()) {
@@ -214,8 +212,7 @@ public class OrganizacionController {
         }
         return total;
     }
-    
-    
+
     /**
      * Inicializa con algunos datos de ejemplo
      */
@@ -223,20 +220,20 @@ public class OrganizacionController {
         // Crear departamentos
         Departamento desarrollo = new Departamento("Desarrollo");
         Departamento marketing = new Departamento("Marketing");
-        
+
         // Crear empleados
         EmpleadoIndividual juan = new EmpleadoIndividual("Juan Pérez", "Desarrollador", 3000);
         EmpleadoIndividual maria = new EmpleadoIndividual("María García", "Diseñadora", 2800);
         EmpleadoIndividual ana = new EmpleadoIndividual("Ana López", "Marketing Manager", 3500);
-        
+
         // Construir jerarquía
         desarrollo.agregarEmpleado(juan);
         desarrollo.agregarEmpleado(maria);
         marketing.agregarEmpleado(ana);
-        
+
         empresaPrincipal.agregarEmpleado(desarrollo);
         empresaPrincipal.agregarEmpleado(marketing);
-        
+
         // Agregar al mapa para búsquedas
         empleadosMap.put("Desarrollo", desarrollo);
         empleadosMap.put("Marketing", marketing);
@@ -244,14 +241,151 @@ public class OrganizacionController {
         empleadosMap.put("María García", maria);
         empleadosMap.put("Ana López", ana);
     }
-    
+
     /**
      * Inicia la aplicación
      */
     public void iniciar() {
         vista.setVisible(true);
     }
-    
+
     // Getters para la vista
-    public Departamento getEmpresaPrincipal() { return empresaPrincipal; }
+    public Departamento getEmpresaPrincipal() {
+        return empresaPrincipal;
+    }
+
+    /**
+     * Remueve un empleado individual del sistema
+     */
+    public boolean removerEmpleado(String nombreEmpleado) {
+        try {
+            Empleado empleado = empleadosMap.get(nombreEmpleado);
+
+            if (empleado == null || !(empleado instanceof EmpleadoIndividual)) {
+                return false;
+            }
+
+            // Buscar en qué departamento está
+            Departamento departamentoPadre = buscarDepartamentoPadre(empleado);
+
+            if (departamentoPadre != null) {
+                departamentoPadre.removerEmpleado(empleado);
+                empleadosMap.remove(nombreEmpleado);
+                actualizarVista();
+                return true;
+            }
+
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Remueve un departamento completo (incluyendo todo su contenido)
+     */
+    public boolean removerDepartamento(String nombreDepartamento) {
+        try {
+            if (nombreDepartamento.equals("Empresa Principal")) {
+                return false; // No se puede eliminar la raíz
+            }
+
+            Departamento departamento = buscarDepartamento(nombreDepartamento);
+
+            if (departamento == null) {
+                return false;
+            }
+
+            // Confirmar eliminación (porque es destructiva)
+            int confirmacion = JOptionPane.showConfirmDialog(
+                    vista,
+                    "⚠️ ADVERTENCIA: Esto eliminará el departamento '" + nombreDepartamento
+                    + "' y TODOS sus empleados y sub-departamentos.\n\n"
+                    + "Total de elementos que se eliminarán: " + contarElementosRecursivo(departamento)
+                    + "\n\n¿Está seguro de continuar?",
+                    "Confirmar Eliminación",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+            if (confirmacion != JOptionPane.YES_OPTION) {
+                return false;
+            }
+
+            // Remover recursivamente del mapa
+            removerDelMapaRecursivo(departamento);
+
+            // Buscar departamento padre y remover
+            Departamento padre = buscarDepartamentoPadre(departamento);
+            if (padre != null) {
+                padre.removerEmpleado(departamento);
+                actualizarVista();
+                return true;
+            }
+
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Busca el departamento padre de un empleado dado
+     */
+    private Departamento buscarDepartamentoPadre(Empleado empleadoBuscado) {
+        return buscarDepartamentoPadreRecursivo(empresaPrincipal, empleadoBuscado);
+    }
+
+    private Departamento buscarDepartamentoPadreRecursivo(Departamento departamento, Empleado empleadoBuscado) {
+        // Verificar si está en este departamento
+        for (Empleado empleado : departamento.getEmpleados()) {
+            if (empleado == empleadoBuscado) {
+                return departamento; // Encontrado, este es el padre
+            }
+
+            // Si es un departamento, buscar recursivamente
+            if (empleado instanceof Departamento) {
+                Departamento encontrado = buscarDepartamentoPadreRecursivo((Departamento) empleado, empleadoBuscado);
+                if (encontrado != null) {
+                    return encontrado;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Cuenta total de elementos que se eliminarían (para advertencia)
+     */
+    private int contarElementosRecursivo(Departamento departamento) {
+        int count = 1; // El departamento mismo
+
+        for (Empleado empleado : departamento.getEmpleados()) {
+            if (empleado instanceof EmpleadoIndividual) {
+                count++;
+            } else if (empleado instanceof Departamento) {
+                count += contarElementosRecursivo((Departamento) empleado);
+            }
+        }
+
+        return count;
+    }
+
+    /**
+     * Remueve todos los elementos del mapa recursivamente
+     */
+    private void removerDelMapaRecursivo(Departamento departamento) {
+        // Remover el departamento del mapa
+        empleadosMap.remove(departamento.getNombre());
+
+        // Remover todos sus hijos
+        for (Empleado empleado : departamento.getEmpleados()) {
+            empleadosMap.remove(empleado.getNombre());
+
+            if (empleado instanceof Departamento) {
+                removerDelMapaRecursivo((Departamento) empleado);
+            }
+        }
+    }
 }
