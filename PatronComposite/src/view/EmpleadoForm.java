@@ -198,7 +198,7 @@ System.out.println("Salario editable: " + txtSalario.isEditable());
     }
     
     private void cargarDepartamentosRecursivo(Departamento departamento){
-        for (Empleado empleado : departamento.getEmpleados()) {
+        for (UnidadOrganizacional empleado : departamento.getEmpleados()) {
         if (empleado instanceof Departamento) {
             Departamento dept = (Departamento) empleado;
             comboDepartamento.addItem(dept.getNombre());

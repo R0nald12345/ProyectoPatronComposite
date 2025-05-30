@@ -20,10 +20,10 @@ import java.util.List;
  * para manejar hijos. Esto hace el patrón "SEGURO" - solo quien puede tener
  * hijos, los maneja.
  */
-public class Departamento implements Empleado {
+public class Departamento implements UnidadOrganizacional {
 
     private String nombre;
-    private List<Empleado> empleados;
+    private List<UnidadOrganizacional> empleados;
 
     public Departamento(String nombre) {
         this.nombre = nombre;
@@ -38,7 +38,7 @@ public class Departamento implements Empleado {
      * Agrega un empleado (individual o departamento) al departamento actual
      * NOTA: Este método solo existe en Departamento, no en EmpleadoIndividual
      */
-    public void agregarEmpleado(Empleado empleado) {
+    public void agregarEmpleado(UnidadOrganizacional empleado) {
         empleados.add(empleado);
         System.out.println("✅ Agregado al departamento " + nombre);
     }
@@ -46,7 +46,7 @@ public class Departamento implements Empleado {
     /**
      * Remueve un empleado del departamento
      */
-    public void removerEmpleado(Empleado empleado) {
+    public void removerEmpleado(UnidadOrganizacional empleado) {
         if (empleados.remove(empleado)) {
             System.out.println("❌ Empleado removido del departamento " + nombre);
         } else {
@@ -57,7 +57,7 @@ public class Departamento implements Empleado {
     /**
      * Obtiene la lista de empleados del departamento
      */
-    public List<Empleado> getEmpleados() {
+    public List<UnidadOrganizacional> getEmpleados() {
         return new ArrayList<>(empleados); // Retorna copia para evitar modificaciones externas
     }
 
@@ -83,7 +83,7 @@ public class Departamento implements Empleado {
     @Override
     public double getSalario() {
         double salarioTotal = 0;
-        for (Empleado empleado : empleados) {
+        for (UnidadOrganizacional empleado : empleados) {
             salarioTotal += empleado.getSalario();
         }
         return salarioTotal;
@@ -103,9 +103,9 @@ public class Departamento implements Empleado {
         if (!empleados.isEmpty()) {
             info.append("Empleados:\n");
             for (int i = 0; i < empleados.size(); i++) {
-                Empleado emp = empleados.get(i);
-                if (emp instanceof EmpleadoIndividual) {
-                    EmpleadoIndividual empInd = (EmpleadoIndividual) emp;
+                UnidadOrganizacional emp = empleados.get(i);
+                if (emp instanceof Empleado) {
+                    Empleado empInd = (Empleado) emp;
                     info.append("  ").append(i + 1).append(". 👤 ")
                             .append(empInd.getNombre())
                             .append(" (").append(empInd.getCargo()).append(")\n");

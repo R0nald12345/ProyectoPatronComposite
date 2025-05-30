@@ -175,7 +175,7 @@ public class DepartamentoForm extends JDialog {
      * Mtodo aux para cargar departamento de forma recursiva
      */
     private void cargarDepartamentosRecursivo(Departamento departamento) {
-        for (Empleado empleado : departamento.getEmpleados()) {
+        for (UnidadOrganizacional empleado : departamento.getEmpleados()) {
             if (empleado instanceof Departamento) {
                 Departamento dept = (Departamento) empleado;
                 comboDepartamentoPadre.addItem(dept.getNombre());

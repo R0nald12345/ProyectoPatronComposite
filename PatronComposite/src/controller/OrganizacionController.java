@@ -24,7 +24,7 @@ public class OrganizacionController {
 
     private MainFrame vista;
     private Departamento empresaPrincipal;
-    private Map<String, Empleado> empleadosMap; // Para búsquedas rápidas
+    private Map<String, UnidadOrganizacional> empleadosMap; // Para búsquedas rápidas
 
     public OrganizacionController() {
         this.empleadosMap = new HashMap<>();
@@ -46,7 +46,7 @@ public class OrganizacionController {
      */
     public boolean agregarEmpleadoIndividual(String nombreDepartamento, String nombre, String cargo, double salario) {
         try {
-            EmpleadoIndividual nuevoEmpleado = new EmpleadoIndividual(nombre, cargo, salario);
+            Empleado nuevoEmpleado = new Empleado(nombre, cargo, salario);
             Departamento departamento = buscarDepartamento(nombreDepartamento);
 
             if (departamento != null) {
@@ -102,7 +102,7 @@ public class OrganizacionController {
             return departamento;
         }
 
-        for (Empleado empleado : departamento.getEmpleados()) {
+        for (UnidadOrganizacional empleado : departamento.getEmpleados()) {
             if (empleado instanceof Departamento) {
                 Departamento encontrado = buscarDepartamentoRecursivo((Departamento) empleado, nombre);
                 if (encontrado != null) {
@@ -118,7 +118,7 @@ public class OrganizacionController {
      */
     public String obtenerInformacionDetallada(String nombre) {
         // Primero buscar en el mapa
-        Empleado empleado = empleadosMap.get(nombre);
+        UnidadOrganizacional empleado = empleadosMap.get(nombre);
 
         // Si no está en el mapa, buscar recursivamente
         if (empleado == null) {
@@ -136,21 +136,21 @@ public class OrganizacionController {
     /**
      * Método auxiliar para buscar empleados recursivamente
      */
-    private Empleado buscarEmpleadoRecursivo(Departamento departamento, String nombre) {
+    private UnidadOrganizacional buscarEmpleadoRecursivo(Departamento departamento, String nombre) {
         // Verificar si el departamento actual es el buscado
         if (departamento.getNombre().equals(nombre)) {
             return departamento;
         }
 
         // Buscar en los empleados del departamento
-        for (Empleado empleado : departamento.getEmpleados()) {
+        for (UnidadOrganizacional empleado : departamento.getEmpleados()) {
             if (empleado.getNombre().equals(nombre)) {
                 return empleado;
             }
 
             // Si es un departamento, buscar recursivamente
             if (empleado instanceof Departamento) {
-                Empleado encontrado = buscarEmpleadoRecursivo((Departamento) empleado, nombre);
+                UnidadOrganizacional encontrado = buscarEmpleadoRecursivo((Departamento) empleado, nombre);
                 if (encontrado != null) {
                     return encontrado;
                 }
@@ -170,14 +170,14 @@ public class OrganizacionController {
     }
 
     private void construirNodosRecursivo(DefaultMutableTreeNode nodo, Departamento departamento) {
-        for (Empleado empleado : departamento.getEmpleados()) {
+        for (UnidadOrganizacional empleado : departamento.getEmpleados()) {
             if (empleado instanceof Departamento) {
                 Departamento dept = (Departamento) empleado;
                 DefaultMutableTreeNode nodoHijo = new DefaultMutableTreeNode("📁 " + dept.getNombre());
                 nodo.add(nodoHijo);
                 construirNodosRecursivo(nodoHijo, dept);
-            } else if (empleado instanceof EmpleadoIndividual) {
-                EmpleadoIndividual emp = (EmpleadoIndividual) empleado;
+            } else if (empleado instanceof Empleado) {
+                Empleado emp = (Empleado) empleado;
                 DefaultMutableTreeNode nodoHijo = new DefaultMutableTreeNode(
                         "👤 " + emp.getNombre() + " (" + emp.getCargo() + ")"
                 );
@@ -203,8 +203,8 @@ public class OrganizacionController {
 
     private int contarEmpleadosRecursivo(Departamento dept) {
         int total = 0;
-        for (Empleado emp : dept.getEmpleados()) {
-            if (emp instanceof EmpleadoIndividual) {
+        for (UnidadOrganizacional emp : dept.getEmpleados()) {
+            if (emp instanceof Empleado) {
                 total++;
             } else if (emp instanceof Departamento) {
                 total += contarEmpleadosRecursivo((Departamento) emp);
@@ -222,9 +222,9 @@ public class OrganizacionController {
         Departamento marketing = new Departamento("Marketing");
 
         // Crear empleados
-        EmpleadoIndividual juan = new EmpleadoIndividual("Juan Pérez", "Desarrollador", 3000);
-        EmpleadoIndividual maria = new EmpleadoIndividual("María García", "Diseñadora", 2800);
-        EmpleadoIndividual ana = new EmpleadoIndividual("Ana López", "Marketing Manager", 3500);
+        Empleado juan = new Empleado("Juan Pérez", "Desarrollador", 3000);
+        Empleado maria = new Empleado("María García", "Diseñadora", 2800);
+        Empleado ana = new Empleado("Ana López", "Marketing Manager", 3500);
 
         // Construir jerarquía
         desarrollo.agregarEmpleado(juan);
@@ -259,9 +259,9 @@ public class OrganizacionController {
      */
     public boolean removerEmpleado(String nombreEmpleado) {
         try {
-            Empleado empleado = empleadosMap.get(nombreEmpleado);
+            UnidadOrganizacional empleado = empleadosMap.get(nombreEmpleado);
 
-            if (empleado == null || !(empleado instanceof EmpleadoIndividual)) {
+            if (empleado == null || !(empleado instanceof Empleado)) {
                 return false;
             }
 
@@ -332,13 +332,13 @@ public class OrganizacionController {
     /**
      * Busca el departamento padre de un empleado dado
      */
-    private Departamento buscarDepartamentoPadre(Empleado empleadoBuscado) {
+    private Departamento buscarDepartamentoPadre(UnidadOrganizacional empleadoBuscado) {
         return buscarDepartamentoPadreRecursivo(empresaPrincipal, empleadoBuscado);
     }
 
-    private Departamento buscarDepartamentoPadreRecursivo(Departamento departamento, Empleado empleadoBuscado) {
+    private Departamento buscarDepartamentoPadreRecursivo(Departamento departamento, UnidadOrganizacional empleadoBuscado) {
         // Verificar si está en este departamento
-        for (Empleado empleado : departamento.getEmpleados()) {
+        for (UnidadOrganizacional empleado : departamento.getEmpleados()) {
             if (empleado == empleadoBuscado) {
                 return departamento; // Encontrado, este es el padre
             }
@@ -361,8 +361,8 @@ public class OrganizacionController {
     private int contarElementosRecursivo(Departamento departamento) {
         int count = 1; // El departamento mismo
 
-        for (Empleado empleado : departamento.getEmpleados()) {
-            if (empleado instanceof EmpleadoIndividual) {
+        for (UnidadOrganizacional empleado : departamento.getEmpleados()) {
+            if (empleado instanceof Empleado) {
                 count++;
             } else if (empleado instanceof Departamento) {
                 count += contarElementosRecursivo((Departamento) empleado);
@@ -380,7 +380,7 @@ public class OrganizacionController {
         empleadosMap.remove(departamento.getNombre());
 
         // Remover todos sus hijos
-        for (Empleado empleado : departamento.getEmpleados()) {
+        for (UnidadOrganizacional empleado : departamento.getEmpleados()) {
             empleadosMap.remove(empleado.getNombre());
 
             if (empleado instanceof Departamento) {
