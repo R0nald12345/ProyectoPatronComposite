@@ -119,24 +119,47 @@ public class OrganizacionController {
      * Obtiene información de un empleado/departamento
      */
     public String obtenerInformacionDetallada(String nombre) {
+        // Primero buscar en el mapa
         Empleado empleado = empleadosMap.get(nombre);
-        if (empleado == null) return "No encontrado";
         
-        StringBuilder info = new StringBuilder();
-        if (empleado instanceof EmpleadoIndividual) {
-            EmpleadoIndividual emp = (EmpleadoIndividual) empleado;
-            info.append("👤 EMPLEADO INDIVIDUAL\n");
-            info.append("Nombre: ").append(emp.getNombre()).append("\n");
-            info.append("Cargo: ").append(emp.getCargo()).append("\n");
-            info.append("Salario: $").append(emp.getSalario()).append("\n");
-        } else if (empleado instanceof Departamento) {
-            Departamento dept = (Departamento) empleado;
-            info.append("🏢 DEPARTAMENTO\n");
-            info.append("Nombre: ").append(dept.getNombre()).append("\n");
-            info.append("Total Empleados: ").append(dept.getTotalEmpleados()).append("\n");
-            info.append("Salario Total: $").append(dept.getSalario()).append("\n");
+        // Si no está en el mapa, buscar recursivamente
+        if (empleado == null) {
+            empleado = buscarEmpleadoRecursivo(empresaPrincipal, nombre);
         }
-        return info.toString();
+        
+        if (empleado != null) {
+            // ¡Aquí usamos el método de la interfaz!
+            return empleado.mostrarInfo();
+        }
+        
+        return "❌ No se encontró información para: " + nombre;
+    }
+    
+     /**
+     * Método auxiliar para buscar empleados recursivamente
+     */
+    private Empleado buscarEmpleadoRecursivo(Departamento departamento, String nombre) {
+        // Verificar si el departamento actual es el buscado
+        if (departamento.getNombre().equals(nombre)) {
+            return departamento;
+        }
+        
+        // Buscar en los empleados del departamento
+        for (Empleado empleado : departamento.getEmpleados()) {
+            if (empleado.getNombre().equals(nombre)) {
+                return empleado;
+            }
+            
+            // Si es un departamento, buscar recursivamente
+            if (empleado instanceof Departamento) {
+                Empleado encontrado = buscarEmpleadoRecursivo((Departamento) empleado, nombre);
+                if (encontrado != null) {
+                    return encontrado;
+                }
+            }
+        }
+        
+        return null;
     }
     
     /**

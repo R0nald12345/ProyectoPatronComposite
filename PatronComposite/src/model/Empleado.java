@@ -9,13 +9,21 @@ package model;
  * @author USER
  */
 public interface Empleado {
-    
-    
-    
     /**
      * Obtiene el salario total (individual o suma del departamento)
      * @return salario total
      */
     double getSalario();
+    
+    /**
+     * Muestra la información del empleado o departamento
+     * @return información formateada como String para la GUI
+     */
+    String mostrarInfo();
+    
+    /**
+     * Obtiene el nombre del empleado o departamento
+     * @return nombre
+     */
+    String getNombre();
 }
-
