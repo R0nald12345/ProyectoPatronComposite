@@ -13,6 +13,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import model.*;
 
 /**
  * Formulario para crear nuevos empleados individuales
@@ -38,7 +39,7 @@ public class EmpleadoForm extends JDialog {
         configurarLayout();
         configurarEventos();
         configurarDialogo();
-        cargarDepartamentos();
+        cargarDepartamentos(   );
     }
     
     /**
@@ -180,13 +181,33 @@ System.out.println("Salario editable: " + txtSalario.isEditable());
     /**
      * Carga los departamentos disponibles en el combo
      */
-    private void cargarDepartamentos() {
-        comboDepartamento.addItem("Empresa Principal");
-        // Aquí podrías agregar lógica para cargar departamentos existentes
-        // Por ahora agregamos algunos predeterminados
-        comboDepartamento.addItem("Desarrollo");
-        comboDepartamento.addItem("Marketing");
+    private void cargarDepartamentos(  ) {
+//        comboDepartamento.addItem("Empresa Principal");
+//        // Aquí podrías agregar lógica para cargar departamentos existentes
+//        // Por ahora agregamos algunos predeterminados
+//        comboDepartamento.addItem("Desarrollo");
+//        comboDepartamento.addItem("Marketing");
+        
+        
+        comboDepartamento.removeAll();//Empiezo a limpiar todo
+        comboDepartamento.addItem("Empresa Principal"); //Cargo el padre
+        
+        //Cargo departamentos dinamicamente  
+        cargarDepartamentosRecursivo(controller.getEmpresaPrincipal());
+        
     }
+    
+    private void cargarDepartamentosRecursivo(Departamento departamento){
+        for (Empleado empleado : departamento.getEmpleados()) {
+        if (empleado instanceof Departamento) {
+            Departamento dept = (Departamento) empleado;
+            comboDepartamento.addItem(dept.getNombre());
+            // Recursión para subdepartamentos
+            cargarDepartamentosRecursivo(dept);
+        }
+    }
+    }
+    
     
     /**
      * Valida y guarda el nuevo empleado

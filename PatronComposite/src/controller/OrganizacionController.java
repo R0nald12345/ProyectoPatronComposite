@@ -37,6 +37,11 @@ public class OrganizacionController {
         actualizarVista();
     }
     
+    //Verifico si ya exisite un departamento o empleado con el mismo nombre
+    public boolean existeNombre(String nombre){
+        return empleadosMap.containsKey(nombre);
+    }
+    
     /**
      * Agrega un empleado individual al departamento seleccionado
      */
