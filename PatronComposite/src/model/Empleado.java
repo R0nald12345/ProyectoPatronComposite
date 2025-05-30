@@ -9,10 +9,8 @@ package model;
  * @author USER
  */
 public interface Empleado {
-     /**
-     * Muestra la información del empleado o departamento
-     */
-    void mostrarInfo();
+    
+    
     
     /**
      * Obtiene el salario total (individual o suma del departamento)

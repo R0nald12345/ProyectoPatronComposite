@@ -74,24 +74,6 @@ public class Departamento implements Empleado {
     // IMPLEMENTACIÓN DE MÉTODOS COMUNES
     // ================================
     
-    /**
-     * Muestra información del departamento y recursivamente de todos sus empleados
-     * Este es el comportamiento COMPUESTO - delega a sus hijos
-     */
-    @Override
-    public void mostrarInfo() {
-        System.out.println("\n🏢 DEPARTAMENTO: " + nombre + 
-                          " (Total empleados: " + empleados.size() + ")");
-        System.out.println("📊 Salario total del departamento: $" + getSalario());
-        System.out.println("├─────────────────────────────────");
-        
-        // Delega la operación a cada empleado/subdepartamento
-        for (int i = 0; i < empleados.size(); i++) {
-            System.out.print("│ ");
-            empleados.get(i).mostrarInfo();
-        }
-        System.out.println("└─────────────────────────────────");
-    }
     
     /**
      * Calcula el salario total sumando los salarios de todos los empleados

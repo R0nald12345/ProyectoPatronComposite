@@ -30,15 +30,7 @@ public class EmpleadoIndividual implements Empleado {
         this.salario = salario;
     }
     
-    /**
-     * Implementación específica para mostrar info de empleado individual
-     */
-    @Override
-    public void mostrarInfo() {
-        System.out.println("👤 Empleado: " + nombre + 
-                          " | Cargo: " + cargo + 
-                          " | Salario: $" + salario);
-    }
+   
     
     /**
      * Retorna el salario del empleado individual
